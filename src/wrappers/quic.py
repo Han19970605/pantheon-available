@@ -35,13 +35,13 @@ def generate_html(output_dir, size):
                  '</body>\n'
                  '</html>\n')
 
-    html = open(html_path, 'w')
+    html = open(html_path, 'wb')
     html.write(head_text)
 
     block_size = 100 * 1024 * 1024
     block = 'x' * block_size
     num_blocks = int(size) / block_size + 1
-    for _ in xrange(num_blocks):
+    for _ in range(num_blocks):
         html.write(block + '\n')
 
     html.write(foot_text)
@@ -91,7 +91,7 @@ def main():
     utils.make_sure_dir_exists(html_dir)
 
     if args.option == 'deps':
-        print 'libnss3-tools libgconf-2-4'
+        print('libnss3-tools libgconf-2-4')
         return
 
     if args.option == 'setup':
@@ -112,7 +112,7 @@ def main():
 
         for _ in range(5):
             # suppress stdout as it prints the huge web page received
-            with open(os.devnull, 'w') as devnull:
+            with open(os.devnull, 'wb') as devnull:
                 if call(cmd, stdout=devnull) == 0:
                     return
 

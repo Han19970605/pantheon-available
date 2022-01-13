@@ -88,7 +88,7 @@ class PlotThroughputTime(object):
             throughput[flow_id] = []
 
             max_bin_id = max(departures[flow_id].keys())
-            for bin_id in xrange(0, max_bin_id + 1):
+            for bin_id in range(0, max_bin_id + 1):
                 time_sec = (start_ts + bin_id * self.ms_per_bin) / 1000.0
                 clock_time[flow_id].append(time_sec)
 
@@ -111,7 +111,7 @@ class PlotThroughputTime(object):
         for cc in self.cc_schemes:
             cc_name = schemes_config[cc]['name']
 
-            for run_id in xrange(1, self.run_times + 1):
+            for run_id in range(1, self.run_times + 1):
                 tunnel_log_path = path.join(
                     self.data_dir, datalink_fmt_str % (cc, run_id))
                 clock_time, throughput = self.parse_tunnel_log(tunnel_log_path)

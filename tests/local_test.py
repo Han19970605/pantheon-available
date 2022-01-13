@@ -33,7 +33,7 @@ def get_sample_config(config_name):
                   '  - scheme: cubic')
 
     config_path = path.join(utils.tmp_dir, '%s.yml' % config_name)
-    with open(config_path, 'w') as f:
+    with open(config_path, 'wb') as f:
         f.write(config)
 
     return config_path

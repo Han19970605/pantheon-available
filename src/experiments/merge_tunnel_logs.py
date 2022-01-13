@@ -222,7 +222,7 @@ def multiple_mode(args):
     if link_log:
         link_init_ts_delta = link_init_ts - min_init_ts
 
-    for i in xrange(len(init_ts_delta)):
+    for i in range(len(init_ts_delta)):
         init_ts_delta[i] -= min_init_ts
 
     output_log.write('# init timestamp: %.3f\n' % min_init_ts)
@@ -233,7 +233,7 @@ def multiple_mode(args):
         if not line:
             sys.exit('Warning: no delivery opportunities found\n')
 
-    for i in xrange(len(tun_logs)):
+    for i in range(len(tun_logs)):
         line = push_to_heap(heap, i, tun_logs[i], init_ts_delta[i])
         if not line:
             sys.exit(

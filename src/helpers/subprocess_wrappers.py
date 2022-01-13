@@ -5,7 +5,7 @@ import subprocess
 def print_cmd(cmd):
     if isinstance(cmd, list):
         cmd_to_print = ' '.join(cmd).strip()
-    elif isinstance(cmd, (str, unicode)):
+    elif isinstance(cmd, (bytes, str)):
         cmd_to_print = cmd.strip()
     else:
         cmd_to_print = ''

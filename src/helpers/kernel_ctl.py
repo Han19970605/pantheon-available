@@ -1,6 +1,6 @@
 import sys
 
-from subprocess_wrappers import call, check_output, check_call
+from .subprocess_wrappers import call, check_output, check_call
 
 
 def load_kernel_module(module):

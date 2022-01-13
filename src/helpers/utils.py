@@ -9,8 +9,8 @@ import yaml
 import subprocess
 from datetime import datetime
 
-import context
-from subprocess_wrappers import check_call, check_output, call
+from .context import base_dir, src_dir
+from .subprocess_wrappers import check_call, check_output, call
 
 
 def get_open_port():
@@ -31,13 +31,16 @@ def make_sure_dir_exists(d):
             raise
 
 
-tmp_dir = path.join(context.base_dir, 'tmp')
+tmp_dir = path.join(base_dir, 'tmp')
 make_sure_dir_exists(tmp_dir)
 
+# 定义配置文件存放位置
+conf_dir = path.join(src_dir,'experiments','config')
+make_sure_dir_exists(conf_dir)
 
 def parse_config():
-    with open(path.join(context.src_dir, 'config.yml')) as config:
-        return yaml.load(config)
+    with open(path.join(src_dir, 'config.yml')) as config:
+        return yaml.load(config,Loader=yaml.FullLoader)
 
 
 def update_submodules():
@@ -70,7 +73,7 @@ def kill_proc_group(proc, signum=signal.SIGTERM):
 
 
 def apply_patch(patch_name, repo_dir):
-    patch = path.join(context.src_dir, 'wrappers', 'patches', patch_name)
+    patch = path.join(src_dir, 'wrappers', 'patches', patch_name)
 
     if call(['git', 'apply', patch], cwd=repo_dir) != 0:
         sys.stderr.write('patch apply failed but assuming things okay '
@@ -102,10 +105,10 @@ def verify_schemes_with_meta(schemes, meta):
 
 
 def who_runs_first(cc):
-    cc_src = path.join(context.src_dir, 'wrappers', cc + '.py')
+    cc_src = path.join(src_dir, 'wrappers', cc + '.py')
 
     cmd = [cc_src, 'run_first']
-    run_first = check_output(cmd).strip()
+    run_first = check_output(cmd).strip().decode('utf-8')
 
     if run_first == 'receiver':
         run_second = 'sender'
@@ -148,7 +151,7 @@ def query_clock_offset(ntp_addr, ssh_cmd):
         cmd = ntp_cmds[side]
 
         fail = True
-        for _ in xrange(3):
+        for _ in range(3):
             try:
                 offset = check_output(cmd)
                 sys.stderr.write(offset)
@@ -175,9 +178,9 @@ def query_clock_offset(ntp_addr, ssh_cmd):
 
 
 def get_git_summary(mode='local', remote_path=None):
-    git_summary_src = path.join(context.src_dir, 'experiments',
+    git_summary_src = path.join(src_dir, 'experiments',
                                 'git_summary.sh')
-    local_git_summary = check_output(git_summary_src, cwd=context.base_dir)
+    local_git_summary = check_output(git_summary_src, cwd=base_dir)
 
     if mode == 'remote':
         r = parse_remote_path(remote_path)
@@ -198,6 +201,17 @@ def get_git_summary(mode='local', remote_path=None):
 
     return local_git_summary
 
+def decode_dict(d):
+    result = {}
+    for key, value in d.items():
+        if isinstance(key, bytes):
+            key = key.decode()
+        if isinstance(value, bytes):
+            value = value.decode()
+        elif isinstance(value, dict):
+            value = decode_dict(value)
+        result.update({key: value})
+    return result
 
 def save_test_metadata(meta, metadata_path):
     meta.pop('all')
@@ -216,18 +230,18 @@ def save_test_metadata(meta, metadata_path):
         meta['downlink_trace'] = path.basename(meta['downlink_trace'])
 
     with open(metadata_path, 'w') as metadata_fh:
-        json.dump(meta, metadata_fh, sort_keys=True, indent=4,
+        json.dump(decode_dict(meta), metadata_fh, sort_keys=True, indent=4,
                   separators=(',', ': '))
 
 
 def get_sys_info():
     sys_info = ''
-    sys_info += check_output(['uname', '-sr'])
-    sys_info += check_output(['sysctl', 'net.core.default_qdisc'])
-    sys_info += check_output(['sysctl', 'net.core.rmem_default'])
-    sys_info += check_output(['sysctl', 'net.core.rmem_max'])
-    sys_info += check_output(['sysctl', 'net.core.wmem_default'])
-    sys_info += check_output(['sysctl', 'net.core.wmem_max'])
-    sys_info += check_output(['sysctl', 'net.ipv4.tcp_rmem'])
-    sys_info += check_output(['sysctl', 'net.ipv4.tcp_wmem'])
+    sys_info += check_output(['uname', '-sr']).decode()
+    sys_info += check_output(['sysctl', 'net.core.default_qdisc']).decode()
+    sys_info += check_output(['sysctl', 'net.core.rmem_default']).decode()
+    sys_info += check_output(['sysctl', 'net.core.rmem_max']).decode()
+    sys_info += check_output(['sysctl', 'net.core.wmem_default']).decode()
+    sys_info += check_output(['sysctl', 'net.core.wmem_max']).decode()
+    sys_info += check_output(['sysctl', 'net.ipv4.tcp_rmem']).decode()
+    sys_info += check_output(['sysctl', 'net.ipv4.tcp_wmem']).decode()
     return sys_info

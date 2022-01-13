@@ -74,7 +74,7 @@ def parse_setup():
 
     return args
 
-
+# 在该函数中添加 流的数量，运行时间，运行间隔，运行次数，开始运行的id，顺序 <公有的属性>
 def parse_test_shared(local, remote, config_args):
     for mode in [local, remote]:
         if config_args.config_file is None:
@@ -95,6 +95,7 @@ def parse_test_shared(local, remote, config_args):
             group.add_argument('--schemes', metavar='"SCHEME1 SCHEME2..."',
                                help='test a space-separated list of schemes')
 
+        # metavar 只是作为展示的一个例子
         mode.add_argument('--run-times', metavar='TIMES', type=int, default=1,
                           help='run times of each scheme (default 1)')
         mode.add_argument('--start-run-id', metavar='ID', type=int, default=1,
@@ -221,16 +222,20 @@ def parse_test():
         parents=[config_parser])
 
     subparsers = parser.add_subparsers(dest='mode')
+    # local和remote分别为一个arguementParser
     local = subparsers.add_parser(
         'local', help='test schemes locally in mahimahi emulated networks')
     remote = subparsers.add_parser(
         'remote', help='test schemes between local and remote in '
         'real-life networks')
+    # remote 需要添加remote_path参数，格式为user@ipaddress:pantheon directory
     remote.add_argument(
         'remote_path', metavar='HOST:PANTHEON-DIR',
         help='HOST ([user@]IP) and PANTHEON-DIR (remote pantheon directory)')
 
+    # 解析local和remote共有的参数
     parse_test_shared(local, remote, config_args)
+    # 分别解析local和remote独有的参数
     parse_test_local(local)
     parse_test_remote(remote)
 
@@ -238,18 +243,21 @@ def parse_test():
     test_config = None
     if config_args.config_file is not None:
         with open(config_args.config_file) as f:
+            # 加载数据
             test_config = yaml.safe_load(f)
         parse_test_config(test_config, local, remote)
 
+    # 获取parser中解析到的属性
     args = parser.parse_args(remaining_argv)
     if args.schemes is not None:
-        verify_schemes(args.schemes)
+        verify_schemes(args.schemes)   
         args.test_config = None
     elif not args.all:
         assert(test_config is not None)
         schemes = ' '.join([flow['scheme'] for flow in test_config['flows']])
         verify_schemes(schemes)
 
+    # 确认属性
     verify_test_args(args)
     utils.make_sure_dir_exists(args.data_dir)
 

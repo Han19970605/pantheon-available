@@ -27,6 +27,7 @@ def main():
     sys.stdout.write('tunnel manager is running\n')
     sys.stdout.flush()
 
+
     while True:
         input_cmd = sys.stdin.readline().strip()
 
@@ -49,18 +50,19 @@ def main():
                 continue
 
             cmd_to_run = ' '.join(cmd[2:])
-
+            
             if cmd[2] == 'mm-tunnelclient' or cmd[2] == 'mm-tunnelserver':
-                # expand env variables (e.g., MAHIMAHI_BASE)
+                # expand env variables (e.g., MAHIMAHI_BASE) 用环境变量替换
                 cmd_to_run = path.expandvars(cmd_to_run).split()
 
                 # expand home directory
-                for i in xrange(len(cmd_to_run)):
+                for i in range(len(cmd_to_run)):
                     if ('--ingress-log' in cmd_to_run[i] or
                         '--egress-log' in cmd_to_run[i]):
                         t = cmd_to_run[i].split('=')
                         cmd_to_run[i] = t[0] + '=' + path.expanduser(t[1])
-
+                
+                # tun_id fd
                 procs[tun_id] = Popen(cmd_to_run, stdin=PIPE,
                                       stdout=PIPE, preexec_fn=os.setsid)
             elif cmd[2] == 'python':  # run python scripts inside tunnel
@@ -68,9 +70,9 @@ def main():
                     sys.stderr.write(
                         'error: run tunnel client or server first\n')
 
-                procs[tun_id].stdin.write(cmd_to_run + '\n')
+                procs[tun_id].stdin.write((cmd_to_run + '\n').encode('utf-8'))
                 procs[tun_id].stdin.flush()
-            elif cmd[2] == 'readline':  # readline from stdout of tunnel
+            elif cmd[2] == 'readline':  # readline from stdout of tunnel 
                 if len(cmd) != 3:
                     sys.stderr.write('error: usage: tunnel ID readline\n')
                     continue
@@ -79,7 +81,8 @@ def main():
                     sys.stderr.write(
                         'error: run tunnel client or server first\n')
 
-                sys.stdout.write(procs[tun_id].stdout.readline())
+                # 给出了ip地址 mm-runnelclient和mm-tunnelserver应该是pantheon自身创建的
+                sys.stdout.write(procs[tun_id].stdout.readline().decode('utf-8'))
                 sys.stdout.flush()
             else:
                 sys.stderr.write('unknown command after "tunnel ID": %s\n'

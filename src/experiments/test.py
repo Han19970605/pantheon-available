@@ -149,7 +149,8 @@ class Test(object):
         if self.mode == 'remote':
             remote_tmp = self.r['tmp_dir']
 
-        for tun_id in xrange(1, self.flows + 1):
+        # tunnel log的名称设置
+        for tun_id in range(1, self.flows + 1):
             uid = uuid.uuid4()
 
             datalink_ingress_logname = ('%s_flow%s_uid%s.log.ingress' %
@@ -197,7 +198,7 @@ class Test(object):
             self.run_first = None
             self.run_second = None
 
-        # wait for 3 seconds until run_first is ready
+        # wait for 3 seconds until run_first is ready                                         
         self.run_first_setup_time = 3
 
         # setup output logs
@@ -269,17 +270,18 @@ class Test(object):
             ts_manager_cmd = ['python', self.tunnel_manager]
 
         sys.stderr.write('[tunnel server manager (tsm)] ')
+        # Popen 的第一个参数即为要执行的命令,是一个子进程
         self.ts_manager = Popen(ts_manager_cmd, stdin=PIPE, stdout=PIPE,
                                 preexec_fn=os.setsid)
         ts_manager = self.ts_manager
 
         while True:
-            running = ts_manager.stdout.readline()
+            running = ts_manager.stdout.readline().decode('utf-8')
             if 'tunnel manager is running' in running:
                 sys.stderr.write(running)
                 break
 
-        ts_manager.stdin.write('prompt [tsm]\n')
+        ts_manager.stdin.write(b'prompt [tsm]\n')
         ts_manager.stdin.flush()
 
         # run tunnel client manager
@@ -298,12 +300,12 @@ class Test(object):
         tc_manager = self.tc_manager
 
         while True:
-            running = tc_manager.stdout.readline()
+            running = tc_manager.stdout.readline().decode('utf-8')
             if 'tunnel manager is running' in running:
                 sys.stderr.write(running)
                 break
 
-        tc_manager.stdin.write('prompt [tcm]\n')
+        tc_manager.stdin.write(b'prompt [tcm]\n')
         tc_manager.stdin.flush()
 
         return ts_manager, tc_manager
@@ -314,6 +316,7 @@ class Test(object):
                 self.acklink_ingress_logs[tun_id],
                 self.datalink_egress_logs[tun_id])
         else:
+            # server 是接收端
             ts_cmd = 'mm-tunnelserver --ingress-log=%s --egress-log=%s' % (
                 self.datalink_ingress_logs[tun_id],
                 self.acklink_egress_logs[tun_id])
@@ -326,17 +329,19 @@ class Test(object):
                 if self.local_if is not None:
                     ts_cmd += ' --interface=' + self.local_if
 
+        # ts_cmd 格式为tunnel 1 mm-tunnelserver ingress_log_file egress_log_file
         ts_cmd = 'tunnel %s %s\n' % (tun_id, ts_cmd)
-        ts_manager.stdin.write(ts_cmd)
+        ts_manager.stdin.write(ts_cmd.encode('utf-8'))
         ts_manager.stdin.flush()
 
         # read the command to run tunnel client
         readline_cmd = 'tunnel %s readline\n' % tun_id
-        ts_manager.stdin.write(readline_cmd)
+        ts_manager.stdin.write(readline_cmd.encode('utf-8'))
         ts_manager.stdin.flush()
 
-        cmd_to_run_tc = ts_manager.stdout.readline().split()
-        return cmd_to_run_tc
+        # cmd_to_run_tc 在这里获取了client的ip地址和port
+        cmd_to_run_tc = ts_manager.stdout.readline().decode('utf-8').split()
+        return cmd_to_run_tc 
 
     def run_tunnel_client(self, tun_id, tc_manager, cmd_to_run_tc):
         if self.mode == 'local':
@@ -381,17 +386,18 @@ class Test(object):
                 sys.stderr.write('Unable to establish tunnel\n')
                 return False
 
-            tc_manager.stdin.write(tc_cmd)
+            # 相同的步骤，先运行起来再readline
+            tc_manager.stdin.write(tc_cmd.encode('utf-8'))
             tc_manager.stdin.flush()
             while True:
-                tc_manager.stdin.write(readline_cmd)
+                tc_manager.stdin.write(readline_cmd.encode('utf-8'))
                 tc_manager.stdin.flush()
 
                 signal.signal(signal.SIGALRM, utils.timeout_handler)
                 signal.alarm(20)
 
                 try:
-                    got_connection = tc_manager.stdout.readline()
+                    got_connection = tc_manager.stdout.readline().decode('utf-8')
                     sys.stderr.write('Tunnel is connected\n')
                 except utils.TimeoutError:
                     sys.stderr.write('Tunnel connection timeout\n')
@@ -413,6 +419,7 @@ class Test(object):
         first_src = self.cc_src
         second_src = self.cc_src
 
+        # 运行第一方并且返回第二方的cmd
         if self.run_first == 'receiver':
             if self.mode == 'remote':
                 if self.sender_side == 'local':
@@ -427,7 +434,7 @@ class Test(object):
             second_cmd = 'tunnel %s python %s sender %s %s\n' % (
                 tun_id, second_src, recv_pri_ip, port)
 
-            recv_manager.stdin.write(first_cmd)
+            recv_manager.stdin.write(first_cmd.encode('utf-8'))
             recv_manager.stdin.flush()
         elif self.run_first == 'sender':  # self.run_first == 'sender'
             if self.mode == 'remote':
@@ -443,7 +450,7 @@ class Test(object):
             second_cmd = 'tunnel %s python %s receiver %s %s\n' % (
                 tun_id, second_src, send_pri_ip, port)
 
-            send_manager.stdin.write(first_cmd)
+            send_manager.stdin.write(first_cmd.encode('utf-8'))
             send_manager.stdin.flush()
 
         # get run_first and run_second from the flow object
@@ -468,7 +475,7 @@ class Test(object):
                 second_cmd = 'tunnel %s python %s sender %s %s\n' % (
                     tun_id, second_src, recv_pri_ip, port)
 
-                recv_manager.stdin.write(first_cmd)
+                recv_manager.stdin.write(first_cmd.encode('utf-8'))
                 recv_manager.stdin.flush()
             else:  # flow.run_first == 'sender'
                 if self.mode == 'remote':
@@ -484,37 +491,38 @@ class Test(object):
                 second_cmd = 'tunnel %s python %s receiver %s %s\n' % (
                     tun_id, second_src, send_pri_ip, port)
 
-                send_manager.stdin.write(first_cmd)
+                send_manager.stdin.write(first_cmd.encode('utf-8'))
                 send_manager.stdin.flush()
 
         return second_cmd
 
     def run_second_side(self, send_manager, recv_manager, second_cmds):
         time.sleep(self.run_first_setup_time)
-
+        self.run_first = 'receiver'
         start_time = time.time()
         self.test_start_time = utils.utc_time()
 
         # start each flow self.interval seconds after the previous one
-        for i in xrange(len(second_cmds)):
+        for i in range(len(second_cmds)):
             if i != 0:
                 time.sleep(self.interval)
             second_cmd = second_cmds[i]
 
+            
             if self.run_first == 'receiver':
-                send_manager.stdin.write(second_cmd)
+                send_manager.stdin.write(second_cmd.encode('utf-8'))
                 send_manager.stdin.flush()
             elif self.run_first == 'sender':
-                recv_manager.stdin.write(second_cmd)
+                recv_manager.stdin.write(second_cmd.encode('utf-8'))
                 recv_manager.stdin.flush()
             else:
                 assert(hasattr(self, 'flow_objs'))
                 flow = self.flow_objs[i]
                 if flow.run_first == 'receiver':
-                    send_manager.stdin.write(second_cmd)
+                    send_manager.stdin.write(second_cmd.encode('utf-8'))
                     send_manager.stdin.flush()
                 elif flow.run_first == 'sender':
-                    recv_manager.stdin.write(second_cmd)
+                    recv_manager.stdin.write(second_cmd.encode('utf-8'))
                     recv_manager.stdin.flush()
 
         elapsed_time = time.time() - start_time
@@ -532,6 +540,7 @@ class Test(object):
         # run pantheon tunnel server and client managers
         ts_manager, tc_manager = self.run_tunnel_managers()
 
+        # 如果sender_side是sever_side或者client_side 分别赋值
         # create alias for ts_manager and tc_manager using sender or receiver
         if self.sender_side == self.server_side:
             send_manager = ts_manager
@@ -542,7 +551,7 @@ class Test(object):
 
         # run every flow
         second_cmds = []
-        for tun_id in xrange(1, self.flows + 1):
+        for tun_id in range(1, self.flows + 1):
             # run tunnel server for tunnel tun_id
             cmd_to_run_tc = self.run_tunnel_server(tun_id, ts_manager)
 
@@ -550,6 +559,7 @@ class Test(object):
             if not self.run_tunnel_client(tun_id, tc_manager, cmd_to_run_tc):
                 return False
 
+            # 返回值 mm-tunnelclient localhost 49242 100.64.0.2 100.64.0.1
             tc_pri_ip = cmd_to_run_tc[3]  # tunnel client private IP
             ts_pri_ip = cmd_to_run_tc[4]  # tunnel server private IP
 
@@ -570,9 +580,9 @@ class Test(object):
             return False
 
         # stop all the running flows and quit tunnel managers
-        ts_manager.stdin.write('halt\n')
+        ts_manager.stdin.write(b'halt\n')
         ts_manager.stdin.flush()
-        tc_manager.stdin.write('halt\n')
+        tc_manager.stdin.write(b'halt\n')
         tc_manager.stdin.flush()
 
         # process tunnel logs
@@ -635,7 +645,7 @@ class Test(object):
         merge_tunnel_logs = path.join(context.src_dir, 'experiments',
                                       'merge_tunnel_logs.py')
 
-        for tun_id in xrange(1, self.flows + 1):
+        for tun_id in range(1, self.flows + 1):
             if self.mode == 'remote':
                 self.download_tunnel_logs(tun_id)
 
@@ -775,7 +785,7 @@ def run_tests(args):
     utils.save_test_metadata(meta, metadata_path)
 
     # run tests
-    for run_id in xrange(args.start_run_id,
+    for run_id in range(args.start_run_id,
                          args.start_run_id + args.run_times):
         if not hasattr(args, 'test_config') or args.test_config is None:
             for cc in cc_schemes:

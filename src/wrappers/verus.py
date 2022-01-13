@@ -16,7 +16,7 @@ def main():
     recv_src = path.join(cc_repo, 'src', 'verus_client')
 
     if args.option == 'deps':
-        print 'libtbb-dev libasio-dev libalglib-dev libboost-system-dev'
+        print('libtbb-dev libasio-dev libalglib-dev libboost-system-dev')
         return
 
     if args.option == 'setup':

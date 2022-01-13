@@ -22,7 +22,7 @@ def main():
     args = arg_parser.receiver_first()
 
     if args.option == 'deps':
-        print 'iperf'
+        print('iperf')
         return
 
     if args.option == 'setup_after_reboot':

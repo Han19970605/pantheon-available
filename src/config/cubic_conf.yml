@@ -1,0 +1,37 @@
+# # shared attributes
+# flows: 
+#   - scheme: cubic
+#   - scheme: bbr
+# runtime: 30
+# interval: 1 # 每条流间隔时间
+
+# flows: [{
+#   "scheme": "xntp"
+# },{
+#   "scheme": "xntp"
+# },{
+#   "scheme": bbr
+# }]
+
+
+# # local attributes 
+# test-name: test-cubic
+# random_order: true # 是否开启混洗
+# extra_mm_link_args: --uplink-queue=droptail --uplink-queue-args=packets=512 # 额外的链路设置
+# prepend_mm_cmds: mm-delay 30ms # 额外的mahimahi配置
+# uplink-trace: trace.dir
+# downlink-trace: trace.dir
+# append-mm-cmds: CMD1 .. # mahimahi shells to run inside of mm-link
+
+# # remote attributes
+# sender: local(default)/remote
+# tunnel-server: local/remote(default)
+# # if the tunnel server is local 
+# local-addr: IP
+
+    #  "cubic",
+    #  "verus",
+    #  "xntp",
+    #  "bbr",
+    #  "pcc",
+    #  "vivace"

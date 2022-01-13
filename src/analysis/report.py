@@ -103,11 +103,11 @@ class Report(object):
             '%s'
             '\\end{verbatim}\n\n' % utils.get_sys_info())
 
-        desc += (
-            '\\begin{verbatim}\n'
-            'Git summary:\n'
-            '%s'
-            '\\end{verbatim}\n\n' % meta['git_summary'])
+        # desc += (
+        #     '\\begin{verbatim}\n'
+        #     'Git summary:\n'
+        #     '%s'
+        #     '\\end{verbatim}\n\n' % meta['git_summary'])
         desc += '\\newpage\n\n'
 
         return desc
@@ -115,11 +115,11 @@ class Report(object):
     def create_table(self, data):
         align = ' c | c'
         for data_t in ['tput', 'delay', 'loss']:
-            align += ' | ' + ' '.join(['Y' for _ in xrange(self.flows)])
+            align += ' | ' + ' '.join(['Y' for _ in range(self.flows)])
         align += ' '
 
         flow_cols = ' & '.join(
-            ['flow %d' % flow_id for flow_id in xrange(1, 1 + self.flows)])
+            ['flow %d' % flow_id for flow_id in range(1, 1 + self.flows)])
 
         table_width = 0.9 if self.flows == 1 else ''
         table = (
@@ -141,7 +141,7 @@ class Report(object):
             flow_data = {}
             for data_t in ['tput', 'delay', 'loss']:
                 flow_data[data_t] = []
-                for flow_id in xrange(1, self.flows + 1):
+                for flow_id in range(1, self.flows + 1):
                     if data[cc][flow_id][data_t]:
                         mean_value = np.mean(data[cc][flow_id][data_t])
                         flow_data[data_t].append('%.2f' % mean_value)
@@ -180,14 +180,14 @@ class Report(object):
             cc_name = cc_name.strip().replace('_', '\\_')
             data[cc]['name'] = cc_name
 
-            for flow_id in xrange(1, self.flows + 1):
+            for flow_id in range(1, self.flows + 1):
                 data[cc][flow_id] = {}
 
                 data[cc][flow_id]['tput'] = []
                 data[cc][flow_id]['delay'] = []
                 data[cc][flow_id]['loss'] = []
 
-            for run_id in xrange(1, 1 + self.run_times):
+            for run_id in range(1, 1 + self.run_times):
                 fname = '%s_stats_run%s.log' % (cc, run_id)
                 stats_log_path = path.join(self.data_dir, fname)
 
@@ -269,7 +269,7 @@ class Report(object):
             cc_name = self.config['schemes'][cc]['name']
             cc_name = cc_name.strip().replace('_', '\\_')
 
-            for run_id in xrange(1, 1 + self.run_times):
+            for run_id in range(1, 1 + self.run_times):
                 fname = '%s_stats_run%s.log' % (cc, run_id)
                 stats_log_path = path.join(self.data_dir, fname)
 

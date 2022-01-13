@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from os import path
+from subprocess import run
 import sys
 import math
 import json
@@ -20,10 +21,12 @@ from helpers import utils
 class Plot(object):
     def __init__(self, args):
         self.data_dir = path.abspath(args.data_dir)
+        # 是否包含ack链路
         self.include_acklink = args.include_acklink
         self.no_graphs = args.no_graphs
 
         metadata_path = path.join(self.data_dir, 'pantheon_metadata.json')
+        # 加载测试信息，并印证schemes都在meta中
         meta = utils.load_test_metadata(metadata_path)
         self.cc_schemes = utils.verify_schemes_with_meta(args.schemes, meta)
 
@@ -33,6 +36,8 @@ class Plot(object):
         self.expt_title = self.generate_expt_title(meta)
 
     def generate_expt_title(self, meta):
+        # expt_title = local test in mahimahi, 1 run of 30s each per scheme
+        #              3 flows with 0s interval between flows
         if meta['mode'] == 'local':
             expt_title = 'local test in mahimahi, '
         elif meta['mode'] == 'remote':
@@ -79,14 +84,17 @@ class Plot(object):
             link_directions.append('acklink')
 
         for link_t in link_directions:
+            # 读取到log文件 
             log_name = log_prefix + '_%s_run%s.log' % (link_t, run_id)
             log_path = path.join(self.data_dir, log_name)
-
+            
+            # log文件不存在
             if not path.isfile(log_path):
                 sys.stderr.write('Warning: %s does not exist\n' % log_path)
                 error = True
                 continue
-
+             
+            # 输出的图名称
             if self.no_graphs:
                 tput_graph_path = None
                 delay_graph_path = None
@@ -99,6 +107,7 @@ class Plot(object):
 
             sys.stderr.write('$ tunnel_graph %s\n' % log_path)
             try:
+                # 创建tunnel_graph
                 tunnel_results = tunnel_graph.TunnelGraph(
                     tunnel_log=log_path,
                     throughput_graph=tput_graph_path,
@@ -167,28 +176,47 @@ class Plot(object):
 
         cc_id = 0
         run_id = 1
-        pool = ThreadPool(processes=multiprocessing.cpu_count())
+        # pool = ThreadPool(processes=multiprocessing.cpu_count())
 
+        # 将异步转为同步
         while cc_id < len(self.cc_schemes):
             cc = self.cc_schemes[cc_id]
-            perf_data[cc][run_id] = pool.apply_async(
-                self.parse_tunnel_log, args=(cc, run_id))
-
+            perf_data[cc][run_id] = self.parse_tunnel_log(cc, run_id)
+            
+            if perf_data[cc][run_id] is not None:
+                stats_str = perf_data[cc][run_id]['stats']
+                self.update_stats_log(cc, run_id, stats_str)
+                stats[cc][run_id] = stats_str
+            
             run_id += 1
             if run_id > self.run_times:
                 run_id = 1
                 cc_id += 1
 
-        for cc in self.cc_schemes:
-            for run_id in xrange(1, 1 + self.run_times):
-                perf_data[cc][run_id] = perf_data[cc][run_id].get()
 
-                if perf_data[cc][run_id] is None:
-                    continue
+        # # 运行log解析的线程
+        # while cc_id < len(self.cc_schemes):
+        #     cc = self.cc_schemes[cc_id]
+        #     perf_data[cc][run_id] = pool.apply_async(
+        #         self.parse_tunnel_log, args=(cc, run_id))
 
-                stats_str = perf_data[cc][run_id]['stats']
-                self.update_stats_log(cc, run_id, stats_str)
-                stats[cc][run_id] = stats_str
+        #     run_id += 1
+        #     if run_id > self.run_times:
+        #         run_id = 1
+        #         cc_id += 1
+
+        # # 获取解析来的数据
+        # for cc in self.cc_schemes:
+        #     for run_id in range(1, 1 + self.run_times):
+        #         # get获取apply_async的返回值
+        #         perf_data[cc][run_id] = perf_data[cc][run_id].get()
+
+        #         if perf_data[cc][run_id] is None:
+        #             continue
+
+        #         stats_str = perf_data[cc][run_id]['stats']
+        #         self.update_stats_log(cc, run_id, stats_str)
+        #         stats[cc][run_id] = stats_str
 
         sys.stderr.write('Appended datalink statistics to stats files in %s\n'
                          % self.data_dir)
@@ -231,10 +259,10 @@ class Plot(object):
             ax.xaxis.set_major_formatter(ticker.FormatStrFormatter('%d'))
 
     def plot_throughput_delay(self, data):
-        min_raw_delay = sys.maxint
-        min_mean_delay = sys.maxint
-        max_raw_delay = -sys.maxint
-        max_mean_delay = -sys.maxint
+        min_raw_delay = sys.maxsize
+        min_mean_delay = sys.maxsize
+        max_raw_delay = -sys.maxsize
+        max_mean_delay = -sys.maxsize
 
         fig_raw, ax_raw = plt.subplots()
         fig_mean, ax_mean = plt.subplots()
@@ -314,6 +342,7 @@ class Plot(object):
             'graphs in %s\n' % self.data_dir)
 
     def run(self):
+        # perf_data 解析log获取的数据
         perf_data, stats_logs = self.eval_performance()
 
         data_for_plot = {}

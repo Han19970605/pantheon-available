@@ -24,7 +24,7 @@ def main():
 
     # [optional] dependencies of Debian packages
     if args.option == 'deps':
-        print 'example_dep_1 example_dep_2'
+        print ('example_dep_1 example_dep_2')
         return
 
     # [optional] persistent setup that only needs to be run once

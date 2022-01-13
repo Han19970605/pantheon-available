@@ -1,10 +1,11 @@
 import argparse
-
+import sys
 
 def parse_wrapper_args(run_first):
     if run_first != 'receiver' and run_first != 'sender':
         sys.exit('Specify "receiver" or "sender" to run first')
 
+    # 使用argumentParser来解析命令行参数
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest='option')
 
@@ -22,6 +23,7 @@ def parse_wrapper_args(run_first):
     receiver_parser = subparsers.add_parser('receiver', help='run receiver')
     sender_parser = subparsers.add_parser('sender', help='run sender')
 
+    # 加-的是选项参数，剩下的为位置参数
     if run_first == 'receiver':
         receiver_parser.add_argument('port', help='port to listen on')
         sender_parser.add_argument(
@@ -36,7 +38,7 @@ def parse_wrapper_args(run_first):
     args = parser.parse_args()
 
     if args.option == 'run_first':
-        print run_first
+        print(run_first)
 
     return args
 

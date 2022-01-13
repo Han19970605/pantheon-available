@@ -67,3 +67,11 @@ schemes:
     name: FillP-Sheep
     color: violet
     marker: 'D'
+  xntp:
+    name: XNTP
+    color: blue
+    marker: 'D'
+  MixedTest:
+    name: mixed
+    color: violet
+    marker: o

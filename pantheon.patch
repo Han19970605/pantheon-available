@@ -1,0 +1,581 @@
+diff --git a/src/analysis/plot.py b/src/analysis/plot.py
+index 8544825..ab52d28 100755
+--- a/src/analysis/plot.py
++++ b/src/analysis/plot.py
+@@ -180,7 +180,7 @@ class Plot(object):
+                 cc_id += 1
+
+         for cc in self.cc_schemes:
+-            for run_id in xrange(1, 1 + self.run_times):
++            for run_id in range(1, 1 + self.run_times):
+                 perf_data[cc][run_id] = perf_data[cc][run_id].get()
+
+                 if perf_data[cc][run_id] is None:
+diff --git a/src/analysis/plot_over_time.py b/src/analysis/plot_over_time.py
+index 8e2f0a6..234a71e 100755
+--- a/src/analysis/plot_over_time.py
++++ b/src/analysis/plot_over_time.py
+@@ -88,7 +88,7 @@ class PlotThroughputTime(object):
+             throughput[flow_id] = []
+
+             max_bin_id = max(departures[flow_id].keys())
+-            for bin_id in xrange(0, max_bin_id + 1):
++            for bin_id in range(0, max_bin_id + 1):
+                 time_sec = (start_ts + bin_id * self.ms_per_bin) / 1000.0
+                 clock_time[flow_id].append(time_sec)
+
+@@ -111,7 +111,7 @@ class PlotThroughputTime(object):
+         for cc in self.cc_schemes:
+             cc_name = schemes_config[cc]['name']
+
+-            for run_id in xrange(1, self.run_times + 1):
++            for run_id in range(1, self.run_times + 1):
+                 tunnel_log_path = path.join(
+                     self.data_dir, datalink_fmt_str % (cc, run_id))
+                 clock_time, throughput = self.parse_tunnel_log(tunnel_log_path)
+diff --git a/src/analysis/report.py b/src/analysis/report.py
+index d1bdc87..4bdce5c 100755
+--- a/src/analysis/report.py
++++ b/src/analysis/report.py
+@@ -115,11 +115,11 @@ class Report(object):
+     def create_table(self, data):
+         align = ' c | c'
+         for data_t in ['tput', 'delay', 'loss']:
+-            align += ' | ' + ' '.join(['Y' for _ in xrange(self.flows)])
++            align += ' | ' + ' '.join(['Y' for _ in range(self.flows)])
+         align += ' '
+
+         flow_cols = ' & '.join(
+-            ['flow %d' % flow_id for flow_id in xrange(1, 1 + self.flows)])
++            ['flow %d' % flow_id for flow_id in range(1, 1 + self.flows)])
+
+         table_width = 0.9 if self.flows == 1 else ''
+         table = (
+@@ -141,7 +141,7 @@ class Report(object):
+             flow_data = {}
+             for data_t in ['tput', 'delay', 'loss']:
+                 flow_data[data_t] = []
+-                for flow_id in xrange(1, self.flows + 1):
++                for flow_id in range(1, self.flows + 1):
+                     if data[cc][flow_id][data_t]:
+                         mean_value = np.mean(data[cc][flow_id][data_t])
+                         flow_data[data_t].append('%.2f' % mean_value)
+@@ -180,14 +180,14 @@ class Report(object):
+             cc_name = cc_name.strip().replace('_', '\\_')
+             data[cc]['name'] = cc_name
+
+-            for flow_id in xrange(1, self.flows + 1):
++            for flow_id in range(1, self.flows + 1):
+                 data[cc][flow_id] = {}
+
+                 data[cc][flow_id]['tput'] = []
+                 data[cc][flow_id]['delay'] = []
+                 data[cc][flow_id]['loss'] = []
+
+-            for run_id in xrange(1, 1 + self.run_times):
++            for run_id in range(1, 1 + self.run_times):
+                 fname = '%s_stats_run%s.log' % (cc, run_id)
+                 stats_log_path = path.join(self.data_dir, fname)
+
+@@ -269,7 +269,7 @@ class Report(object):
+             cc_name = self.config['schemes'][cc]['name']
+             cc_name = cc_name.strip().replace('_', '\\_')
+
+-            for run_id in xrange(1, 1 + self.run_times):
++            for run_id in range(1, 1 + self.run_times):
+                 fname = '%s_stats_run%s.log' % (cc, run_id)
+                 stats_log_path = path.join(self.data_dir, fname)
+
+diff --git a/src/analysis/tunnel_graph.py b/src/analysis/tunnel_graph.py
+index 8e4a346..7bc1f98 100755
+--- a/src/analysis/tunnel_graph.py
++++ b/src/analysis/tunnel_graph.py
+@@ -152,7 +152,7 @@ class TunnelGraph(object):
+
+             # transform capacities into a list
+             capacity_bins = capacities.keys()
+-            for bin_id in xrange(min(capacity_bins), max(capacity_bins) + 1):
++            for bin_id in range(min(capacity_bins), max(capacity_bins) + 1):
+                 self.link_capacity.append(
+                     capacities.get(bin_id, 0) / us_per_bin)
+                 self.link_capacity_t.append(self.bin_to_s(bin_id))
+@@ -190,7 +190,7 @@ class TunnelGraph(object):
+                     self.avg_ingress[flow_id] = flow_arrivals / delta
+
+                 ingress_bins = arrivals[flow_id].keys()
+-                for bin_id in xrange(min(ingress_bins), max(ingress_bins) + 1):
++                for bin_id in range(min(ingress_bins), max(ingress_bins) + 1):
+                     self.ingress_tput[flow_id].append(
+                         arrivals[flow_id].get(bin_id, 0) / us_per_bin)
+                     self.ingress_t[flow_id].append(self.bin_to_s(bin_id))
+@@ -211,7 +211,7 @@ class TunnelGraph(object):
+                 self.egress_tput[flow_id].append(0.0)
+                 self.egress_t[flow_id].append(self.bin_to_s(min(egress_bins)))
+
+-                for bin_id in xrange(min(egress_bins), max(egress_bins) + 1):
++                for bin_id in range(min(egress_bins), max(egress_bins) + 1):
+                     self.egress_tput[flow_id].append(
+                         departures[flow_id].get(bin_id, 0) / us_per_bin)
+                     self.egress_t[flow_id].append(self.bin_to_s(bin_id + 1))
+diff --git a/src/experiments/merge_tunnel_logs.py b/src/experiments/merge_tunnel_logs.py
+index 86f0d02..40fc967 100755
+--- a/src/experiments/merge_tunnel_logs.py
++++ b/src/experiments/merge_tunnel_logs.py
+@@ -222,7 +222,7 @@ def multiple_mode(args):
+     if link_log:
+         link_init_ts_delta = link_init_ts - min_init_ts
+
+-    for i in xrange(len(init_ts_delta)):
++    for i in range(len(init_ts_delta)):
+         init_ts_delta[i] -= min_init_ts
+
+     output_log.write('# init timestamp: %.3f\n' % min_init_ts)
+@@ -233,7 +233,7 @@ def multiple_mode(args):
+         if not line:
+             sys.exit('Warning: no delivery opportunities found\n')
+
+-    for i in xrange(len(tun_logs)):
++    for i in range(len(tun_logs)):
+         line = push_to_heap(heap, i, tun_logs[i], init_ts_delta[i])
+         if not line:
+             sys.exit(
+diff --git a/src/experiments/setup.py b/src/experiments/setup.py
+index 58f9f97..ac2b887 100755
+--- a/src/experiments/setup.py
++++ b/src/experiments/setup.py
+@@ -13,7 +13,7 @@ def install_deps(cc_src):
+     deps = check_output([cc_src, 'deps']).strip()
+
+     if deps:
+-        if call('sudo apt-get -y install ' + deps, shell=True) != 0:
++        if call('sudo apt-get -y install ' + deps.decode('utf-8'), shell=True) != 0:
+             sys.stderr.write('Some dependencies failed to install '
+                              'but assuming things okay.\n')
+
+diff --git a/src/experiments/test.py b/src/experiments/test.py
+index b70eb6d..6f7cba5 100755
+--- a/src/experiments/test.py
++++ b/src/experiments/test.py
+@@ -149,7 +149,7 @@ class Test(object):
+         if self.mode == 'remote':
+             remote_tmp = self.r['tmp_dir']
+
+-        for tun_id in xrange(1, self.flows + 1):
++        for tun_id in range(1, self.flows + 1):
+             uid = uuid.uuid4()
+
+             datalink_ingress_logname = ('%s_flow%s_uid%s.log.ingress' %
+@@ -274,12 +274,12 @@ class Test(object):
+         ts_manager = self.ts_manager
+
+         while True:
+-            running = ts_manager.stdout.readline()
++            running = ts_manager.stdout.readline().decode('utf-8')
+             if 'tunnel manager is running' in running:
+                 sys.stderr.write(running)
+                 break
+
+-        ts_manager.stdin.write('prompt [tsm]\n')
++        ts_manager.stdin.write(b'prompt [tsm]\n')
+         ts_manager.stdin.flush()
+
+         # run tunnel client manager
+@@ -298,12 +298,12 @@ class Test(object):
+         tc_manager = self.tc_manager
+
+         while True:
+-            running = tc_manager.stdout.readline()
++            running = tc_manager.stdout.readline().decode('utf-8')
+             if 'tunnel manager is running' in running:
+                 sys.stderr.write(running)
+                 break
+
+-        tc_manager.stdin.write('prompt [tcm]\n')
++        tc_manager.stdin.write(b'prompt [tcm]\n')
+         tc_manager.stdin.flush()
+
+         return ts_manager, tc_manager
+@@ -327,15 +327,15 @@ class Test(object):
+                     ts_cmd += ' --interface=' + self.local_if
+
+         ts_cmd = 'tunnel %s %s\n' % (tun_id, ts_cmd)
+-        ts_manager.stdin.write(ts_cmd)
++        ts_manager.stdin.write(ts_cmd.encode('utf-8'))
+         ts_manager.stdin.flush()
+
+         # read the command to run tunnel client
+         readline_cmd = 'tunnel %s readline\n' % tun_id
+-        ts_manager.stdin.write(readline_cmd)
++        ts_manager.stdin.write(readline_cmd.encode('utf-8'))
+         ts_manager.stdin.flush()
+
+-        cmd_to_run_tc = ts_manager.stdout.readline().split()
++        cmd_to_run_tc = ts_manager.stdout.readline().decode('utf-8').split()
+         return cmd_to_run_tc
+
+     def run_tunnel_client(self, tun_id, tc_manager, cmd_to_run_tc):
+@@ -381,17 +381,17 @@ class Test(object):
+                 sys.stderr.write('Unable to establish tunnel\n')
+                 return False
+
+-            tc_manager.stdin.write(tc_cmd)
++            tc_manager.stdin.write(tc_cmd.encode('utf-8'))
+             tc_manager.stdin.flush()
+             while True:
+-                tc_manager.stdin.write(readline_cmd)
++                tc_manager.stdin.write(readline_cmd.encode('utf-8'))
+                 tc_manager.stdin.flush()
+
+                 signal.signal(signal.SIGALRM, utils.timeout_handler)
+                 signal.alarm(20)
+
+                 try:
+-                    got_connection = tc_manager.stdout.readline()
++                    got_connection = tc_manager.stdout.readline().decode('utf-8')
+                     sys.stderr.write('Tunnel is connected\n')
+                 except utils.TimeoutError:
+                     sys.stderr.write('Tunnel connection timeout\n')
+@@ -427,7 +427,7 @@ class Test(object):
+             second_cmd = 'tunnel %s python %s sender %s %s\n' % (
+                 tun_id, second_src, recv_pri_ip, port)
+
+-            recv_manager.stdin.write(first_cmd)
++            recv_manager.stdin.write(first_cmd.encode('utf-8'))
+             recv_manager.stdin.flush()
+         elif self.run_first == 'sender':  # self.run_first == 'sender'
+             if self.mode == 'remote':
+@@ -443,7 +443,7 @@ class Test(object):
+             second_cmd = 'tunnel %s python %s receiver %s %s\n' % (
+                 tun_id, second_src, send_pri_ip, port)
+
+-            send_manager.stdin.write(first_cmd)
++            send_manager.stdin.write(first_cmd.encode('utf-8'))
+             send_manager.stdin.flush()
+
+         # get run_first and run_second from the flow object
+@@ -496,25 +496,25 @@ class Test(object):
+         self.test_start_time = utils.utc_time()
+
+         # start each flow self.interval seconds after the previous one
+-        for i in xrange(len(second_cmds)):
++        for i in range(len(second_cmds)):
+             if i != 0:
+                 time.sleep(self.interval)
+             second_cmd = second_cmds[i]
+
+             if self.run_first == 'receiver':
+-                send_manager.stdin.write(second_cmd)
++                send_manager.stdin.write(second_cmd.encode('utf-8'))
+                 send_manager.stdin.flush()
+             elif self.run_first == 'sender':
+-                recv_manager.stdin.write(second_cmd)
++                recv_manager.stdin.write(second_cmd.encode('utf-8'))
+                 recv_manager.stdin.flush()
+             else:
+                 assert(hasattr(self, 'flow_objs'))
+                 flow = self.flow_objs[i]
+                 if flow.run_first == 'receiver':
+-                    send_manager.stdin.write(second_cmd)
++                    send_manager.stdin.write(second_cmd.encode('utf-8'))
+                     send_manager.stdin.flush()
+                 elif flow.run_first == 'sender':
+-                    recv_manager.stdin.write(second_cmd)
++                    recv_manager.stdin.write(second_cmd.encode('utf-8'))
+                     recv_manager.stdin.flush()
+
+         elapsed_time = time.time() - start_time
+@@ -542,7 +542,7 @@ class Test(object):
+
+         # run every flow
+         second_cmds = []
+-        for tun_id in xrange(1, self.flows + 1):
++        for tun_id in range(1, self.flows + 1):
+             # run tunnel server for tunnel tun_id
+             cmd_to_run_tc = self.run_tunnel_server(tun_id, ts_manager)
+
+@@ -570,9 +570,9 @@ class Test(object):
+             return False
+
+         # stop all the running flows and quit tunnel managers
+-        ts_manager.stdin.write('halt\n')
++        ts_manager.stdin.write(b'halt\n')
+         ts_manager.stdin.flush()
+-        tc_manager.stdin.write('halt\n')
++        tc_manager.stdin.write(b'halt\n')
+         tc_manager.stdin.flush()
+
+         # process tunnel logs
+@@ -635,7 +635,7 @@ class Test(object):
+         merge_tunnel_logs = path.join(context.src_dir, 'experiments',
+                                       'merge_tunnel_logs.py')
+
+-        for tun_id in xrange(1, self.flows + 1):
++        for tun_id in range(1, self.flows + 1):
+             if self.mode == 'remote':
+                 self.download_tunnel_logs(tun_id)
+
+@@ -775,7 +775,7 @@ def run_tests(args):
+     utils.save_test_metadata(meta, metadata_path)
+
+     # run tests
+-    for run_id in xrange(args.start_run_id,
++    for run_id in range(args.start_run_id,
+                          args.start_run_id + args.run_times):
+         if not hasattr(args, 'test_config') or args.test_config is None:
+             for cc in cc_schemes:
+diff --git a/src/experiments/tunnel_manager.py b/src/experiments/tunnel_manager.py
+index ef4e8de..bbc6485 100755
+--- a/src/experiments/tunnel_manager.py
++++ b/src/experiments/tunnel_manager.py
+@@ -55,7 +55,7 @@ def main():
+                 cmd_to_run = path.expandvars(cmd_to_run).split()
+
+                 # expand home directory
+-                for i in xrange(len(cmd_to_run)):
++                for i in range(len(cmd_to_run)):
+                     if ('--ingress-log' in cmd_to_run[i] or
+                         '--egress-log' in cmd_to_run[i]):
+                         t = cmd_to_run[i].split('=')
+@@ -68,7 +68,7 @@ def main():
+                     sys.stderr.write(
+                         'error: run tunnel client or server first\n')
+
+-                procs[tun_id].stdin.write(cmd_to_run + '\n')
++                procs[tun_id].stdin.write((cmd_to_run + '\n').encode('utf-8'))
+                 procs[tun_id].stdin.flush()
+             elif cmd[2] == 'readline':  # readline from stdout of tunnel
+                 if len(cmd) != 3:
+@@ -79,7 +79,7 @@ def main():
+                     sys.stderr.write(
+                         'error: run tunnel client or server first\n')
+
+-                sys.stdout.write(procs[tun_id].stdout.readline())
++                sys.stdout.write(procs[tun_id].stdout.readline().decode('utf-8'))
+                 sys.stdout.flush()
+             else:
+                 sys.stderr.write('unknown command after "tunnel ID": %s\n'
+diff --git a/src/helpers/kernel_ctl.py b/src/helpers/kernel_ctl.py
+index cf8beae..fd5c74f 100644
+--- a/src/helpers/kernel_ctl.py
++++ b/src/helpers/kernel_ctl.py
+@@ -1,6 +1,6 @@
+ import sys
+
+-from subprocess_wrappers import call, check_output, check_call
++from .subprocess_wrappers import call, check_output, check_call
+
+
+ def load_kernel_module(module):
+diff --git a/src/helpers/subprocess_wrappers.py b/src/helpers/subprocess_wrappers.py
+index 31a6a9a..9865ff2 100644
+--- a/src/helpers/subprocess_wrappers.py
++++ b/src/helpers/subprocess_wrappers.py
+@@ -5,7 +5,7 @@ import subprocess
+ def print_cmd(cmd):
+     if isinstance(cmd, list):
+         cmd_to_print = ' '.join(cmd).strip()
+-    elif isinstance(cmd, (str, unicode)):
++    elif isinstance(cmd, (bytes, str)):
+         cmd_to_print = cmd.strip()
+     else:
+         cmd_to_print = ''
+diff --git a/src/helpers/utils.py b/src/helpers/utils.py
+index 5124c75..2edd937 100644
+--- a/src/helpers/utils.py
++++ b/src/helpers/utils.py
+@@ -9,8 +9,8 @@ import yaml
+ import subprocess
+ from datetime import datetime
+
+-import context
+-from subprocess_wrappers import check_call, check_output, call
++from .context import base_dir, src_dir
++from .subprocess_wrappers import check_call, check_output, call
+
+
+ def get_open_port():
+@@ -31,12 +31,12 @@ def make_sure_dir_exists(d):
+             raise
+
+
+-tmp_dir = path.join(context.base_dir, 'tmp')
++tmp_dir = path.join(base_dir, 'tmp')
+ make_sure_dir_exists(tmp_dir)
+
+
+ def parse_config():
+-    with open(path.join(context.src_dir, 'config.yml')) as config:
++    with open(path.join(src_dir, 'config.yml')) as config:
+         return yaml.load(config)
+
+
+@@ -70,7 +70,7 @@ def kill_proc_group(proc, signum=signal.SIGTERM):
+
+
+ def apply_patch(patch_name, repo_dir):
+-    patch = path.join(context.src_dir, 'wrappers', 'patches', patch_name)
++    patch = path.join(src_dir, 'wrappers', 'patches', patch_name)
+
+     if call(['git', 'apply', patch], cwd=repo_dir) != 0:
+         sys.stderr.write('patch apply failed but assuming things okay '
+@@ -102,10 +102,10 @@ def verify_schemes_with_meta(schemes, meta):
+
+
+ def who_runs_first(cc):
+-    cc_src = path.join(context.src_dir, 'wrappers', cc + '.py')
++    cc_src = path.join(src_dir, 'wrappers', cc + '.py')
+
+     cmd = [cc_src, 'run_first']
+-    run_first = check_output(cmd).strip()
++    run_first = check_output(cmd).strip().decode('utf-8')
+
+     if run_first == 'receiver':
+         run_second = 'sender'
+@@ -148,7 +148,7 @@ def query_clock_offset(ntp_addr, ssh_cmd):
+         cmd = ntp_cmds[side]
+
+         fail = True
+-        for _ in xrange(3):
++        for _ in range(3):
+             try:
+                 offset = check_output(cmd)
+                 sys.stderr.write(offset)
+@@ -175,9 +175,9 @@ def query_clock_offset(ntp_addr, ssh_cmd):
+
+
+ def get_git_summary(mode='local', remote_path=None):
+-    git_summary_src = path.join(context.src_dir, 'experiments',
++    git_summary_src = path.join(src_dir, 'experiments',
+                                 'git_summary.sh')
+-    local_git_summary = check_output(git_summary_src, cwd=context.base_dir)
++    local_git_summary = check_output(git_summary_src, cwd=base_dir)
+
+     if mode == 'remote':
+         r = parse_remote_path(remote_path)
+@@ -198,6 +198,17 @@ def get_git_summary(mode='local', remote_path=None):
+
+     return local_git_summary
+
++def decode_dict(d):
++    result = {}
++    for key, value in d.items():
++        if isinstance(key, bytes):
++            key = key.decode()
++        if isinstance(value, bytes):
++            value = value.decode()
++        elif isinstance(value, dict):
++            value = decode_dict(value)
++        result.update({key: value})
++    return result
+
+ def save_test_metadata(meta, metadata_path):
+     meta.pop('all')
+@@ -216,7 +227,7 @@ def save_test_metadata(meta, metadata_path):
+         meta['downlink_trace'] = path.basename(meta['downlink_trace'])
+
+     with open(metadata_path, 'w') as metadata_fh:
+-        json.dump(meta, metadata_fh, sort_keys=True, indent=4,
++        json.dump(decode_dict(meta), metadata_fh, sort_keys=True, indent=4,
+                   separators=(',', ': '))
+
+
+diff --git a/src/wrappers/arg_parser.py b/src/wrappers/arg_parser.py
+index 235a142..db3d425 100644
+--- a/src/wrappers/arg_parser.py
++++ b/src/wrappers/arg_parser.py
+@@ -36,7 +36,7 @@ def parse_wrapper_args(run_first):
+     args = parser.parse_args()
+
+     if args.option == 'run_first':
+-        print run_first
++        print(run_first)
+
+     return args
+
+diff --git a/src/wrappers/bbr.py b/src/wrappers/bbr.py
+index 66ec6fc..1792f4c 100755
+--- a/src/wrappers/bbr.py
++++ b/src/wrappers/bbr.py
+@@ -22,7 +22,7 @@ def main():
+     args = arg_parser.receiver_first()
+
+     if args.option == 'deps':
+-        print 'iperf'
++        print('iperf')
+         return
+
+     if args.option == 'setup_after_reboot':
+diff --git a/src/wrappers/cubic.py b/src/wrappers/cubic.py
+index 2695ab0..fb5ef21 100755
+--- a/src/wrappers/cubic.py
++++ b/src/wrappers/cubic.py
+@@ -9,7 +9,7 @@ def main():
+     args = arg_parser.receiver_first()
+
+     if args.option == 'deps':
+-        print 'iperf'
++        print('iperf')
+         return
+
+     if args.option == 'receiver':
+diff --git a/src/wrappers/indigo.py b/src/wrappers/indigo.py
+index 24789a4..fb16b10 100755
+--- a/src/wrappers/indigo.py
++++ b/src/wrappers/indigo.py
+@@ -15,7 +15,7 @@ def main():
+     recv_src = path.join(cc_repo, 'env', 'run_receiver.py')
+
+     if args.option == 'setup':
+-        check_call(['sudo pip install tensorflow==1.14.0'], shell=True)
++        # check_call(['sudo pip install tensorflow==1.14.0'], shell=True)
+         return
+
+     if args.option == 'sender':
+diff --git a/src/wrappers/quic.py b/src/wrappers/quic.py
+index 55a7199..23e4cfe 100755
+--- a/src/wrappers/quic.py
++++ b/src/wrappers/quic.py
+@@ -41,7 +41,7 @@ def generate_html(output_dir, size):
+     block_size = 100 * 1024 * 1024
+     block = 'x' * block_size
+     num_blocks = int(size) / block_size + 1
+-    for _ in xrange(num_blocks):
++    for _ in range(num_blocks):
+         html.write(block + '\n')
+
+     html.write(foot_text)
+@@ -91,7 +91,7 @@ def main():
+     utils.make_sure_dir_exists(html_dir)
+
+     if args.option == 'deps':
+-        print 'libnss3-tools libgconf-2-4'
++        print('libnss3-tools libgconf-2-4')
+         return
+
+     if args.option == 'setup':
+diff --git a/src/wrappers/vegas.py b/src/wrappers/vegas.py
+index 04d08b7..7aa4391 100755
+--- a/src/wrappers/vegas.py
++++ b/src/wrappers/vegas.py
+@@ -19,7 +19,7 @@ def main():
+     args = arg_parser.receiver_first()
+
+     if args.option == 'deps':
+-        print 'iperf'
++        print('iperf')
+         return
+
+     if args.option == 'setup_after_reboot':
+diff --git a/src/wrappers/verus.py b/src/wrappers/verus.py
+index fb35fbc..28679ca 100755
+--- a/src/wrappers/verus.py
++++ b/src/wrappers/verus.py
+@@ -16,7 +16,7 @@ def main():
+     recv_src = path.join(cc_repo, 'src', 'verus_client')
+
+     if args.option == 'deps':
+-        print 'libtbb-dev libasio-dev libalglib-dev libboost-system-dev'
++        print('libtbb-dev libasio-dev libalglib-dev libboost-system-dev')
+         return
+
+     if args.option == 'setup':

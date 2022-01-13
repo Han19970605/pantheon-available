@@ -13,7 +13,7 @@ def install_deps(cc_src):
     deps = check_output([cc_src, 'deps']).strip()
 
     if deps:
-        if call('sudo apt-get -y install ' + deps, shell=True) != 0:
+        if call('sudo apt-get -y install ' + deps.decode('utf-8'), shell=True) != 0:
             sys.stderr.write('Some dependencies failed to install '
                              'but assuming things okay.\n')
 
