@@ -50,11 +50,12 @@ def main():
                 continue
 
             cmd_to_run = ' '.join(cmd[2:])
-            
             if cmd[2] == 'mm-tunnelclient' or cmd[2] == 'mm-tunnelserver':
+        
                 # expand env variables (e.g., MAHIMAHI_BASE) 用环境变量替换
                 cmd_to_run = path.expandvars(cmd_to_run).split()
 
+                
                 # expand home directory
                 for i in range(len(cmd_to_run)):
                     if ('--ingress-log' in cmd_to_run[i] or
@@ -62,6 +63,7 @@ def main():
                         t = cmd_to_run[i].split('=')
                         cmd_to_run[i] = t[0] + '=' + path.expanduser(t[1])
                 
+                # cmd_to_run[0] = 'mm-delay 30 '+ cmd_to_run[0]
                 # tun_id fd
                 procs[tun_id] = Popen(cmd_to_run, stdin=PIPE,
                                       stdout=PIPE, preexec_fn=os.setsid)

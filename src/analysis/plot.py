@@ -108,6 +108,7 @@ class Plot(object):
             sys.stderr.write('$ tunnel_graph %s\n' % log_path)
             try:
                 # 创建tunnel_graph
+                save_pth = 'thisisi hi {delay_graph}'
                 tunnel_results = tunnel_graph.TunnelGraph(
                     tunnel_log=log_path,
                     throughput_graph=tput_graph_path,

@@ -1,0 +1,23 @@
+test-name: xntp
+uplink_trace: /opt/pantheon/src/experiments/100mbps.trace
+downlink_trace: /opt/pantheon/src/experiments/100mbps.trace
+extra_mm_link_args: --uplink-queue=droptail --uplink-queue-args bytes=400000
+# append_mm_cmds: mm-delay ${DELAY} mm-loss uplink 0
+runtime: 30
+interval: 0
+flows: [
+  {"scheme" : cubic},
+  {"scheme": ledbat}
+]
+
+# {"scheme" : cubic},
+
+# flows: [{"scheme" : xntp},
+#   {"scheme": bbr},
+#   {"scheme": cubic}]
+# flows: [{"scheme" : xntp},
+# {"scheme": cubic}]
+
+
+
+

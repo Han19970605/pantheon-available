@@ -264,6 +264,7 @@ class TunnelGraph(object):
             empty_graph = False
             ax.fill_between(self.link_capacity_t, 0, self.link_capacity,
                             facecolor='linen')
+            # np.save(f"link_capacity_time_value.npy",[self.link_capacity_t,self.link_capacity])
 
         colors = ['b', 'g', 'r', 'y', 'c', 'm']
         color_i = 0
@@ -276,6 +277,9 @@ class TunnelGraph(object):
                         label='Flow %s ingress (mean %.2f Mbit/s)'
                         % (flow_id, self.avg_ingress.get(flow_id, 0)),
                         color=color, linestyle='dashed')
+                avg_in = self.avg_ingress.get(flow_id, 0)
+                # np.save(f"{self.throughput_graph}_{flow_id}_{avg_in}_ingress.npy",[self.ingress_t[flow_id], self.ingress_tput[flow_id]])
+                # np.save(f"{self.throughput_graph}_{flow_id}_{avg_in}_ingress.npy",[])
 
             if flow_id in self.egress_tput and flow_id in self.egress_t:
                 empty_graph = False
@@ -283,6 +287,9 @@ class TunnelGraph(object):
                         label='Flow %s egress (mean %.2f Mbit/s)'
                         % (flow_id, self.avg_egress.get(flow_id, 0)),
                         color=color)
+                avg_out = self.avg_egress.get(flow_id, 0)
+                # np.save(f"{self.throughput_graph}_{flow_id}_{avg_out}_egress.npy",[self.egress_t[flow_id], self.egress_tput[flow_id]])
+                # np.save(f"{self.throughput_graph}_{flow_id}_{avg_out}_egress.npy",[])
 
             color_i += 1
             if color_i == len(colors):
@@ -326,6 +333,9 @@ class TunnelGraph(object):
                            color=color, marker='.',
                            label='Flow %s (95th percentile %.2f ms)'
                            % (flow_id, self.percentile_delay.get(flow_id, 0)))
+                avg_delay=self.percentile_delay.get(flow_id, 0)
+                # np.save(f"{self.delay_graph}_{flow_id}_{avg_delay}.npy",[self.delays_t[flow_id], self.delays[flow_id]])
+                # np.save(f"{self.delay_graph}_{flow_id}_{avg_delay}.npy",[])
 
                 color_i += 1
                 if color_i == len(colors):

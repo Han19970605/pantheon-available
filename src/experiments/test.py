@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from ast import arg
 import os
 from os import path
 import sys
@@ -26,6 +27,7 @@ Flow = namedtuple('Flow', ['cc', # replace self.cc
 
 class Test(object):
     def __init__(self, args, run_id, cc):
+    
         self.mode = args.mode
         self.run_id = run_id
         self.cc = cc
@@ -202,8 +204,8 @@ class Test(object):
         self.run_first_setup_time = 3
 
         # setup output logs
-        self.datalink_name = self.cc + '_datalink_run%d' % self.run_id
-        self.acklink_name = self.cc + '_acklink_run%d' % self.run_id
+        self.datalink_name = self.cc + '_datalink_run%d' % self.run_id 
+        self.acklink_name = self.cc + '_acklink_run%d' % self.run_id 
 
         self.datalink_log = path.join(
             self.data_dir, self.datalink_name + '.log')
@@ -775,6 +777,12 @@ def run_tests(args):
         if args.random_order:
             random.shuffle(args.test_config['flows'])
         cc_schemes = [flow['scheme'] for flow in args.test_config['flows']]
+        
+    # 修改生成地址
+    if(args.datapath is not ''):
+        args.data_dir = args.data_dir+'/'+args.datapath+'/'
+    if not os.path.exists(args.data_dir):
+        os.makedirs(args.data_dir)
 
     # save metadata
     meta = vars(args).copy()

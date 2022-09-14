@@ -1,3 +1,4 @@
+from email.policy import default
 from os import path
 import sys
 import yaml
@@ -87,6 +88,10 @@ def parse_test_shared(local, remote, config_args):
         mode.add_argument(
             '--interval', type=int, default=0,
             help='interval in seconds between two flows (default 0)')
+        mode.add_argument(
+            '--datapath', default = '', 
+            help = 'add the log path the put the log files'
+        )
 
         if config_args.config_file is None:
             group = mode.add_mutually_exclusive_group(required=True)

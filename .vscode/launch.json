@@ -1,18 +1,19 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
-            "program": "./src/experiments/test.py",
+            "program": "/opt/pantheon/src/experiments/test.py",
             "args": [
-                "-c",
-                "./src/experiments/config/xntp_conf.yml",
-                "local"
+                "local",
+                "--schemes",
+                "xntp",
+                "--uplink-trace",
+                "100mbps.trace",
+                "--append-mm-cmds",
+                "mm-delay 20"
             ],
             "console": "integratedTerminal"
         }
