@@ -12,13 +12,17 @@ import arg_parser
 
 
 class TunnelGraph(object):
+    # 修改构造函数，将数据的路径和算法名称录进来
     def __init__(self, tunnel_log, throughput_graph=None, delay_graph=None,
-                 ms_per_bin=500):
+                 ms_per_bin=500, data_dir='./', cc=None):
         # 创建tunnel_graph，将log路径，输出的两个图路径录进来
         self.tunnel_log = tunnel_log
         self.throughput_graph = throughput_graph
         self.delay_graph = delay_graph
         self.ms_per_bin = ms_per_bin
+
+        self.data_dir = data_dir
+        self.cc = cc
 
     def ms_to_bin(self, ts, first_ts):
         return int((ts - first_ts) / self.ms_per_bin)
@@ -277,8 +281,8 @@ class TunnelGraph(object):
                         label='Flow %s ingress (mean %.2f Mbit/s)'
                         % (flow_id, self.avg_ingress.get(flow_id, 0)),
                         color=color, linestyle='dashed')
-                avg_in = self.avg_ingress.get(flow_id, 0)
-                # np.save(f"{self.throughput_graph}_{flow_id}_{avg_in}_ingress.npy",[self.ingress_t[flow_id], self.ingress_tput[flow_id]])
+                # avg_in = self.avg_ingress.get(flow_id, 0)
+                np.save(self.data_dir +'/'+ f"throughput_{flow_id}_{self.cc}_ingress.npy",[self.ingress_t[flow_id], self.ingress_tput[flow_id]])
                 # np.save(f"{self.throughput_graph}_{flow_id}_{avg_in}_ingress.npy",[])
 
             if flow_id in self.egress_tput and flow_id in self.egress_t:
@@ -287,8 +291,8 @@ class TunnelGraph(object):
                         label='Flow %s egress (mean %.2f Mbit/s)'
                         % (flow_id, self.avg_egress.get(flow_id, 0)),
                         color=color)
-                avg_out = self.avg_egress.get(flow_id, 0)
-                # np.save(f"{self.throughput_graph}_{flow_id}_{avg_out}_egress.npy",[self.egress_t[flow_id], self.egress_tput[flow_id]])
+                # avg_out = self.avg_egress.get(flow_id, 0)
+                np.save(self.data_dir + '/'+ f"throughput_{flow_id}_{self.cc}_egress.npy",[self.egress_t[flow_id], self.egress_tput[flow_id]])
                 # np.save(f"{self.throughput_graph}_{flow_id}_{avg_out}_egress.npy",[])
 
             color_i += 1
@@ -333,9 +337,7 @@ class TunnelGraph(object):
                            color=color, marker='.',
                            label='Flow %s (95th percentile %.2f ms)'
                            % (flow_id, self.percentile_delay.get(flow_id, 0)))
-                avg_delay=self.percentile_delay.get(flow_id, 0)
-                # np.save(f"{self.delay_graph}_{flow_id}_{avg_delay}.npy",[self.delays_t[flow_id], self.delays[flow_id]])
-                # np.save(f"{self.delay_graph}_{flow_id}_{avg_delay}.npy",[])
+                np.save(self.data_dir + '/'+ f"delay_{flow_id}_{self.cc}.npy",[self.delays_t[flow_id], self.delays[flow_id]])
 
                 color_i += 1
                 if color_i == len(colors):
@@ -448,7 +450,7 @@ def main():
         tunnel_log=args.tunnel_log,
         throughput_graph=args.throughput_graph,
         delay_graph=args.delay_graph,
-        ms_per_bin=args.ms_per_bin)
+        ms_per_bin=args.ms_per_bin,data_dir=args.data_dir, cc = args.cc)
     tunnel_results = tunnel_graph.run()
 
     sys.stderr.write(tunnel_results['stats'])

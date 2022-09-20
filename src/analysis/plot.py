@@ -112,7 +112,7 @@ class Plot(object):
                 tunnel_results = tunnel_graph.TunnelGraph(
                     tunnel_log=log_path,
                     throughput_graph=tput_graph_path,
-                    delay_graph=delay_graph_path).run()
+                    delay_graph=delay_graph_path,data_dir=self.data_dir,cc=cc).run()
             except Exception as exception:
                 sys.stderr.write('Error: %s\n' % exception)
                 sys.stderr.write('Warning: "tunnel_graph %s" failed but '
